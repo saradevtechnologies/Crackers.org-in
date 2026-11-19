@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream text-navy font-sans antialiased;
+  }
+  a {
+    @apply text-maroon hover:text-maroon-dark;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-maroon text-white hover:bg-maroon-dark hover:text-white;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-gold-text hover:brightness-95;
+  }
+  .btn-outline {
+    @apply btn border border-maroon bg-white text-maroon hover:bg-maroon-light;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-white text-navy hover:bg-cream;
+  }
+  .btn-green {
+    @apply btn bg-leaf text-white hover:brightness-110;
+  }
+  .input {
+    @apply h-11 w-full rounded-xl border border-[#D9CBB0] bg-white px-3 text-sm text-navy outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/20;
+  }
+  textarea.input {
+    @apply h-auto py-2;
+  }
+  .table-wrap {
+    @apply overflow-x-auto rounded-2xl border border-line bg-white;
+  }
+  .tbl {
+    @apply w-full min-w-[640px] border-collapse text-sm;
+  }
+  .tbl th {
+    @apply px-3 py-2.5 text-left font-medium text-muted;
+  }
+  .tbl td {
+    @apply border-t border-[#F0E7D6] px-3 py-2.5 align-top;
+  }
+}
