@@ -59,9 +59,10 @@ delete from products where seller_id in (
   'aaaaaaaa-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-000000000002', 'aaaaaaaa-0000-0000-0000-000000000003');
 
 insert into products (seller_id, category_id, name, description, pack_info, mrp, price,
-                      wholesale_price, wholesale_min_qty, is_green, in_stock)
+                      wholesale_price, wholesale_min_qty, is_green, in_stock, image_url)
 select p.seller_id::uuid, c.id, p.name, p.description, p.pack_info, p.mrp, p.price,
-       p.wholesale_price, p.wholesale_min_qty, p.is_green, p.in_stock
+       p.wholesale_price, p.wholesale_min_qty, p.is_green, p.in_stock,
+       '/img/products/' || trim(both '-' from regexp_replace(lower(replace(p.name, '&', 'and')), '[^a-z0-9]+', '-', 'g')) || '.jpg'
 from (values
   -- Sivakasi Star Fireworks
   ('aaaaaaaa-0000-0000-0000-000000000001', 'sparklers',   '10 cm Electric Sparklers',   'Bright crackling silver sparks, ideal for kids.',      '1 box = 10 pcs',   80,   40,   28,  10, true,  true),

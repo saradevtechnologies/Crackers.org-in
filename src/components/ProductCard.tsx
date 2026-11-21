@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import type { Product } from '@/lib/types';
 import { discountPct, inr } from '@/lib/format';
+import { sampleImageFor } from '@/lib/sample-images';
 import { AddToEstimate } from './AddToEstimate';
 import { Badge } from './ui';
 
-export function ProductImage({ src, alt, className = '' }: { src: string | null; alt: string; className?: string }) {
+export function ProductImage({ src: rawSrc, alt, className = '' }: { src: string | null; alt: string; className?: string }) {
+  const src = rawSrc || sampleImageFor(alt);
   if (!src)
     return (
       <div className={`flex items-center justify-center rounded-xl bg-[#F6EBD6] text-xs text-[#8A7456] ${className}`}>

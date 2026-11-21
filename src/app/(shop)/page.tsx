@@ -53,9 +53,15 @@ export default async function HomePage() {
             <Link
               key={c.id}
               href={`/products?cat=${c.slug}`}
-              className="flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-white px-1 py-3 text-center text-xs text-navy hover:text-navy"
+              className="group flex flex-col overflow-hidden items-center gap-1.5 rounded-2xl border border-line bg-white p-1.5 pb-2.5 text-center text-xs text-navy hover:text-navy"
             >
-              <Icon name={c.slug === 'gift-boxes' ? 'gift' : 'sparkle'} size={26} className="text-[#B5831F]" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/img/categories/${c.slug}.jpg`}
+                alt=""
+                loading="lazy"
+                className="aspect-square w-full rounded-xl object-cover transition-transform group-hover:scale-105"
+              />
               {c.name}
             </Link>
           ))}
