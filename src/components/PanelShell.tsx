@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LogoMark } from './Logo';
 
 export interface NavItem {
   href: string;
@@ -22,9 +23,7 @@ export function PanelShell({
     <div className="flex min-h-screen flex-wrap bg-[#F7F5F0]">
       <aside className="flex w-full flex-col gap-1 bg-navy p-4 text-sm text-[#C9D2E3] md:min-h-screen md:w-60">
         <Link href="/" className="mb-4 flex items-center gap-2.5 text-white hover:text-white">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F3E3C3] text-[10px] font-medium text-gold-dark">
-            LOGO
-          </span>
+          <LogoMark size={36} />
           <span>
             <span className="block font-semibold">{title}</span>
             {sub && <span className="block text-xs text-[#C9D2E3]">{sub}</span>}
@@ -35,7 +34,7 @@ export function PanelShell({
             <Link
               key={n.href}
               href={n.href}
-              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[#C9D2E3] hover:bg-[#2C3B5C] hover:text-white"
+              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-[#C9D2E3] transition-colors hover:bg-[#2C3B5C] hover:text-white"
             >
               {n.label}
               {!!n.count && <span className="rounded-full bg-gold px-2 text-xs text-gold-text">{n.count}</span>}

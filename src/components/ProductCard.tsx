@@ -20,14 +20,31 @@ export function ProductImage({ src: rawSrc, alt, className = '' }: { src: string
 export function ProductCard({ p }: { p: Product }) {
   const off = discountPct(p.mrp, p.price);
   return (
-    <div className="flex flex-col gap-1.5 rounded-2xl border border-line bg-white p-3">
+    <div className="card-hover group flex flex-col gap-1.5 rounded-2xl border border-line bg-white p-3 shadow-soft">
       <Link href={`/products/${p.id}`} className="flex flex-col gap-1.5 text-navy hover:text-navy">
-        <ProductImage src={p.image_url} alt={p.name} className="aspect-[4/3] w-full" />
-        <div className="flex flex-wrap gap-1.5">
-          {p.is_green && <Badge tone="green">Green</Badge>}
-          {off > 0 && <Badge tone="red">{off}% off</Badge>}
+        <div className="relative overflow-hidden rounded-xl">
+          <ProductImage
+            src={p.image_url}
+            alt={p.name}
+            className="aspect-[4/3] w-full transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+          {off > 0 && (
+            <span className="absolute left-2 top-2 rounded-full bg-gradient-to-b from-[#B52626] to-maroon-dark px-2 py-0.5 text-[11px] font-semibold text-white shadow-md">
+              {off}% off
+            </span>
+          )}
+          {!p.in_stock && (
+            <span className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-navy/60 to-transparent pb-3">
+              <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-navy shadow-md">Out of stock</span>
+            </span>
+          )}
         </div>
-        <p className="line-clamp-2 text-sm font-medium">{p.name}</p>
+        {p.is_green && (
+          <div className="flex flex-wrap gap-1.5">
+            <Badge tone="green">Green</Badge>
+          </div>
+        )}
+        <p className="line-clamp-2 text-sm font-medium transition-colors group-hover:text-maroon">{p.name}</p>
         <p className="flex items-baseline gap-2">
           {p.mrp > p.price && <span className="text-xs text-[#8A7F72] line-through">{inr(p.mrp)}</span>}
           <span className="text-base font-semibold text-maroon">{inr(p.price)}</span>

@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
+import { Noto_Sans_Tamil, Playfair_Display, Poppins } from 'next/font/google';
 import { SwRegister } from '@/components/SwRegister';
+import { RouteProgress } from '@/components/RouteProgress';
 import './globals.css';
+
+const sans = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans', display: 'swap' });
+const display = Playfair_Display({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-display', display: 'swap' });
+const tamil = Noto_Sans_Tamil({ subsets: ['tamil'], weight: ['400', '500', '600'], variable: '--font-tamil', display: 'swap' });
 
 export const metadata: Metadata = {
   title: { default: 'crackers.org.in · Sivakasi crackers from verified sellers', template: '%s · crackers.org.in' },
@@ -18,17 +25,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500&display=swap"
-        />
-      </head>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${tamil.variable}`}>
       <body>
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         {children}
         <SwRegister />
       </body>

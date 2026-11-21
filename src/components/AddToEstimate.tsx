@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Product } from '@/lib/types';
 import { estimate } from '@/lib/estimate';
 import { sparkleBurst } from '@/lib/effects';
+import { Icon } from './ui';
 
 export function AddToEstimate({ product, compact, qty = 1 }: { product: Product; compact?: boolean; qty?: number }) {
   const [added, setAdded] = useState(false);
@@ -13,7 +14,9 @@ export function AddToEstimate({ product, compact, qty = 1 }: { product: Product;
   return (
     <button
       type="button"
-      className={compact ? 'btn-primary min-h-[36px] px-3 text-xs' : 'btn-primary flex-1 text-base'}
+      className={`${compact ? 'btn-primary min-h-[36px] rounded-full px-3.5 text-xs' : 'btn-primary flex-1 text-base'} ${
+        added ? '!from-[#3A8059] !to-leaf-dark' : ''
+      }`}
       onClick={(e) => {
         estimate.add(
           {
@@ -33,7 +36,17 @@ export function AddToEstimate({ product, compact, qty = 1 }: { product: Product;
         setTimeout(() => setAdded(false), 1200);
       }}
     >
-      {added ? 'Added' : compact ? 'Add' : 'Add to estimate'}
+      {added ? (
+        <span key="added" className="flex animate-pop items-center gap-1">
+          <Icon name="check" size={compact ? 14 : 18} />
+          Added
+        </span>
+      ) : (
+        <span key="add" className="flex items-center gap-1">
+          {compact && <span aria-hidden="true" className="text-sm leading-none">+</span>}
+          {compact ? 'Add' : 'Add to estimate'}
+        </span>
+      )}
     </button>
   );
 }

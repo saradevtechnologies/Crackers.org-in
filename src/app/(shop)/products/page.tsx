@@ -69,7 +69,7 @@ export default async function ProductsPage({
         ))}
       </div>
       {products && products.length ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {(products as Product[]).map((p) => (
             <ProductCard key={p.id} p={p} />
           ))}
@@ -82,7 +82,9 @@ export default async function ProductsPage({
 }
 
 function chip(active: boolean) {
-  return `whitespace-nowrap rounded-full border px-3 py-1.5 text-sm ${
-    active ? 'border-maroon bg-maroon text-white hover:text-white' : 'border-line bg-white text-navy hover:text-navy'
+  return `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95 ${
+    active
+      ? 'border-maroon bg-gradient-to-b from-[#B52626] to-maroon-dark text-white shadow-[0_4px_12px_-4px_rgba(122,20,20,.6)] hover:text-white'
+      : 'border-line bg-white text-navy hover:-translate-y-px hover:border-gold hover:text-maroon hover:shadow-soft'
   }`;
 }

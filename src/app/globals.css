@@ -3,41 +3,98 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-cream text-navy font-sans antialiased;
+    /* Faint kolam pattern: petals, dots and tiny sparkles in antique gold. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cg fill='none' stroke='%23B5831F' stroke-opacity='.13' stroke-width='1.1'%3E%3Cpath d='M44 44Q52 33 44 21Q36 33 44 44ZM44 44Q55 52 67 44Q55 36 44 44ZM44 44Q36 55 44 67Q52 55 44 44ZM44 44Q33 36 21 44Q33 52 44 44Z'/%3E%3Ccircle cx='44' cy='44' r='14' stroke-dasharray='2 4'/%3E%3C/g%3E%3Cg fill='%23B5831F' fill-opacity='.18'%3E%3Ccircle cx='44' cy='44' r='1.8'/%3E%3Ccircle cx='44' cy='0' r='1.3'/%3E%3Ccircle cx='44' cy='88' r='1.3'/%3E%3Ccircle cx='0' cy='44' r='1.3'/%3E%3Ccircle cx='88' cy='44' r='1.3'/%3E%3Cpath d='M0 -6L1.4 -1.4L6 0L1.4 1.4L0 6L-1.4 1.4L-6 0L-1.4 -1.4Z'/%3E%3Cpath transform='translate(88 0)' d='M0 -6L1.4 -1.4L6 0L1.4 1.4L0 6L-1.4 1.4L-6 0L-1.4 -1.4Z'/%3E%3Cpath transform='translate(0 88)' d='M0 -6L1.4 -1.4L6 0L1.4 1.4L0 6L-1.4 1.4L-6 0L-1.4 -1.4Z'/%3E%3Cpath transform='translate(88 88)' d='M0 -6L1.4 -1.4L6 0L1.4 1.4L0 6L-1.4 1.4L-6 0L-1.4 -1.4Z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  /* Warm festival-light glows that stay put while the pattern scrolls. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(38rem 26rem at -6% -8%, rgba(212, 162, 58, 0.16), transparent 70%),
+      radial-gradient(34rem 24rem at 108% 18%, rgba(155, 28, 28, 0.08), transparent 70%),
+      radial-gradient(40rem 22rem at 50% 115%, rgba(212, 162, 58, 0.12), transparent 70%);
+  }
+  h1,
+  h2 {
+    @apply font-display tracking-[-0.01em];
   }
   a {
-    @apply text-maroon hover:text-maroon-dark;
+    @apply text-maroon transition-colors hover:text-maroon-dark;
+  }
+  ::selection {
+    background: rgba(212, 162, 58, 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid #d4a23a;
+    outline-offset: 2px;
   }
 }
 
 @layer components {
+  /* ---------- Buttons ---------- */
   .btn {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+    @apply relative isolate inline-flex min-h-[44px] select-none items-center justify-center gap-2 overflow-hidden rounded-xl px-4 text-sm font-medium transition-all duration-200 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60;
+  }
+  .btn-primary,
+  .btn-gold {
+    @apply btn hover:-translate-y-px;
   }
   .btn-primary {
-    @apply btn bg-maroon text-white hover:bg-maroon-dark hover:text-white;
+    @apply bg-gradient-to-b from-[#B52626] to-maroon-dark text-white shadow-[0_6px_16px_-6px_rgba(122,20,20,.65),inset_0_1px_0_rgba(255,255,255,.18)] hover:text-white hover:shadow-lift;
   }
   .btn-gold {
-    @apply btn bg-gold text-gold-text hover:brightness-95;
+    @apply bg-gradient-to-b from-[#F3D99A] via-gold to-[#C08A22] text-gold-text shadow-[0_6px_16px_-6px_rgba(181,131,31,.7),inset_0_1px_0_rgba(255,255,255,.45)] hover:text-gold-text hover:shadow-[0_12px_26px_-8px_rgba(181,131,31,.75)];
+  }
+  /* Light sweep across primary and gold buttons on hover. */
+  .btn-primary::after,
+  .btn-gold::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.38) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .btn-primary:hover::after,
+  .btn-gold:hover::after {
+    transform: translateX(120%);
   }
   .btn-outline {
-    @apply btn border border-maroon bg-white text-maroon hover:bg-maroon-light;
+    @apply btn border border-maroon bg-white text-maroon hover:-translate-y-px hover:bg-maroon-light hover:shadow-soft;
   }
   .btn-ghost {
-    @apply btn border border-line bg-white text-navy hover:bg-cream;
+    @apply btn border border-line bg-white text-navy hover:-translate-y-px hover:border-[#D9CBB0] hover:text-navy hover:shadow-soft;
   }
   .btn-green {
-    @apply btn bg-leaf text-white hover:brightness-110;
+    @apply btn bg-gradient-to-b from-[#3A8059] to-leaf-dark text-white shadow-[0_6px_16px_-6px_rgba(29,90,55,.6)] hover:-translate-y-px hover:text-white hover:brightness-110;
   }
+
+  /* ---------- Inputs ---------- */
   .input {
-    @apply h-11 w-full rounded-xl border border-[#D9CBB0] bg-white px-3 text-sm text-navy outline-none focus:border-maroon focus:ring-2 focus:ring-maroon/20;
+    @apply h-11 w-full rounded-xl border border-[#D9CBB0] bg-white px-3 text-sm text-navy outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-[#A39787] hover:border-[#CDBB98] focus:border-gold focus:shadow-glow;
   }
   textarea.input {
     @apply h-auto py-2;
   }
+
+  /* ---------- Surfaces ---------- */
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#E3CFA6] hover:shadow-lift;
+  }
   .table-wrap {
-    @apply overflow-x-auto rounded-2xl border border-line bg-white;
+    @apply overflow-x-auto rounded-2xl border border-line bg-white shadow-soft;
   }
   .tbl {
     @apply w-full min-w-[640px] border-collapse text-sm;
@@ -47,5 +104,79 @@
   }
   .tbl td {
     @apply border-t border-[#F0E7D6] px-3 py-2.5 align-top;
+  }
+  .tbl tbody tr {
+    @apply transition-colors hover:bg-[#FFFAF0];
+  }
+
+  /* Gold section title flourish: ✦ Title */
+  .section-title {
+    @apply flex items-center gap-2 text-xl font-semibold sm:text-2xl;
+  }
+  .section-title::before {
+    content: '';
+    @apply h-4 w-4 flex-none bg-gradient-to-br from-[#F3D99A] to-gold;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  }
+
+  /* Mango-leaf and marigold garland (thoranam) strip. */
+  .toran {
+    height: 14px;
+    background-repeat: repeat-x;
+    background-size: 44px 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='14' viewBox='0 0 44 14'%3E%3Cpath d='M0 1.5Q11 5 22 1.5T44 1.5' fill='none' stroke='%23B5831F' stroke-width='1'/%3E%3Cpath d='M11 3.4q3.6 4.2 0 10q-3.6-5.8 0-10Z' fill='%232E6B47'/%3E%3Cpath d='M11 4.5v8' stroke='%23A7D3B5' stroke-width='.6'/%3E%3Ccircle cx='33' cy='6' r='4' fill='%23F59E0B'/%3E%3Ccircle cx='33' cy='6' r='2.2' fill='%23EA580C'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Loading ---------- */
+  .skeleton {
+    @apply animate-shimmer rounded-xl;
+    background-image: linear-gradient(90deg, #f3e9d6 0%, #fbf4e6 40%, #f3e9d6 80%);
+    background-size: 200% 100%;
+  }
+  .route-progress {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 10000;
+    height: 3px;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(90deg, #9b1c1c, #d4a23a, #f3d99a);
+    box-shadow: 0 0 10px rgba(212, 162, 58, 0.7);
+  }
+  .route-progress[data-state='loading'] {
+    width: 85%;
+    opacity: 1;
+    transition: width 8s cubic-bezier(0.1, 0.7, 0.2, 1), opacity 0.15s;
+  }
+  .route-progress[data-state='done'] {
+    width: 100%;
+    opacity: 0;
+    transition: width 0.2s ease-out, opacity 0.3s 0.15s;
+  }
+
+  /* Children fade up one after another. */
+  .stagger > * {
+    @apply animate-fade-up;
+  }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(6) { animation-delay: 200ms; }
+  .stagger > *:nth-child(7) { animation-delay: 240ms; }
+  .stagger > *:nth-child(8) { animation-delay: 280ms; }
+  .stagger > *:nth-child(n + 9) { animation-delay: 320ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

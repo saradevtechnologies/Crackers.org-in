@@ -39,7 +39,14 @@ export function ActionButton({
         </label>
         <input id="reason" className="input h-10 w-56" placeholder={askReason} value={reason} onChange={(e) => setReason(e.target.value)} />
         <button className={className} disabled={pending} onClick={() => go(reason)}>
-          {pending ? '…' : label}
+          {pending ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
+            {label}
+          </>
+        ) : (
+          label
+        )}
         </button>
         <button className="btn-ghost" onClick={() => setAsking(false)}>
           Back
@@ -59,7 +66,14 @@ export function ActionButton({
           go('');
         }}
       >
-        {pending ? '…' : label}
+        {pending ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
+            {label}
+          </>
+        ) : (
+          label
+        )}
       </button>
       {error && <span className="text-sm text-maroon">{error}</span>}
     </span>
