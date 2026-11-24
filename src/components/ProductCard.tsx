@@ -17,8 +17,13 @@ export function ProductImage({ src: rawSrc, alt, className = '' }: { src: string
   return <img src={src} alt={alt} loading="lazy" className={`rounded-xl bg-[#F6EBD6] object-cover ${className}`} />;
 }
 
-export function ProductCard({ p }: { p: Product }) {
+/**
+ * `bulkPrice` is only passed for active bulk buyers: a number = their bulk price, null = no bulk price for this item.
+ * Leave it undefined for everyone else (nothing about bulk pricing is shown).
+ */
+export function ProductCard({ p, bulkPrice, labels }: { p: Product; bulkPrice?: number | null; labels?: { noBulk: string } }) {
   const off = discountPct(p.mrp, p.price);
+  const isBulkView = bulkPrice !== undefined;
   return (
     <div className="card-hover group flex flex-col gap-1.5 rounded-2xl border border-line bg-white p-3 shadow-soft">
       <Link href={`/products/${p.id}`} className="flex flex-col gap-1.5 text-navy hover:text-navy">
@@ -45,10 +50,19 @@ export function ProductCard({ p }: { p: Product }) {
           </div>
         )}
         <p className="line-clamp-2 text-sm font-medium transition-colors group-hover:text-maroon">{p.name}</p>
-        <p className="flex items-baseline gap-2">
-          {p.mrp > p.price && <span className="text-xs text-[#8A7F72] line-through">{inr(p.mrp)}</span>}
-          <span className="text-base font-semibold text-maroon">{inr(p.price)}</span>
-        </p>
+        {isBulkView && bulkPrice ? (
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            <span className="text-xs text-[#8A7F72] line-through">{inr(p.price)}</span>
+            <span className="text-base font-semibold text-[#1E3A6B]">{inr(bulkPrice)}</span>
+            <span className="rounded bg-[#E8EEF8] px-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#1E3A6B]">Bulk</span>
+          </p>
+        ) : (
+          <p className="flex flex-wrap items-baseline gap-x-2">
+            {p.mrp > p.price && <span className="text-xs text-[#8A7F72] line-through">{inr(p.mrp)}</span>}
+            <span className="text-base font-semibold text-maroon">{inr(p.price)}</span>
+            {isBulkView && <span className="text-[10px] text-muted">{labels?.noBulk ?? 'No bulk price'}</span>}
+          </p>
+        )}
       </Link>
       <div className="mt-auto flex items-center justify-between gap-2">
         <span className="text-xs text-muted">Shop {p.shop_id}</span>

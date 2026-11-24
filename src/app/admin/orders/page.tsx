@@ -53,7 +53,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: { st
                   <Link href={`/admin/orders/${o.id}`} className="font-medium">
                     {o.order_no}
                   </Link>
-                  {o.is_wholesale && <span className="ml-1 text-xs text-muted">wholesale</span>}
+                  {o.order_type === 'bulk' && <span className="ml-1 rounded bg-[#E8EEF8] px-1.5 text-[10px] font-semibold text-[#1E3A6B]">BULK</span>}
                 </td>
                 <td>{dateTime(o.created_at)}</td>
                 <td>

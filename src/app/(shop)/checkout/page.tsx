@@ -1,10 +1,11 @@
-import { requireUser } from '@/lib/auth';
+import { getBulkAccount, requireUser } from '@/lib/auth';
 import { CheckoutForm } from './CheckoutForm';
 
 export const metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
-  const { supabase, profile } = await requireUser('/checkout');
+  const { supabase, user, profile } = await requireUser('/checkout');
+  const { bulk, bulkActive } = await getBulkAccount();
   const [{ data: areas }, { data: last }] = await Promise.all([
     supabase.from('blocked_areas').select('kind, value'),
     supabase
@@ -17,10 +18,26 @@ export default async function CheckoutPage() {
   return (
     <CheckoutForm
       blocked={areas ?? []}
-      canWholesale={profile.wholesale === 'approved'}
+      bulk={
+        bulkActive && bulk
+          ? {
+              gstin: bulk.gstin,
+              shopName: bulk.shop_name,
+              // Bulk orders: prefill from the application (editable)
+              ship: {
+                name: bulk.shop_name,
+                phone: bulk.phone,
+                address: bulk.address,
+                city: bulk.city,
+                state: bulk.state,
+                pincode: bulk.pincode,
+              },
+            }
+          : null
+      }
       defaults={{
         name: last?.ship_name ?? profile.full_name ?? '',
-        phone: last?.ship_phone ?? profile.phone ?? '',
+        phone: profile.phone || (user.phone ? `+${user.phone.replace(/\D/g, '')}` : '') || last?.ship_phone || '',
         address: last?.ship_address ?? '',
         city: last?.ship_city ?? '',
         state: last?.ship_state ?? 'Tamil Nadu',

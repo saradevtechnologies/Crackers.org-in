@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/lib/auth';
+import { bulkPricesFor } from '@/lib/pricing';
+import { getT } from '@/lib/i18n';
 import type { Product } from '@/lib/types';
 import { discountPct, inr } from '@/lib/format';
 import { ProductImage } from '@/components/ProductCard';
@@ -10,13 +12,16 @@ import { Badge, Icon } from '@/components/ui';
 export const dynamic = 'force-dynamic';
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
-  const { supabase, profile } = await getSession();
+  const { supabase } = await getSession();
+  const t = getT();
   const { data } = await supabase.from('products').select('*, categories(name, slug)').eq('id', params.id).maybeSingle();
   if (!data) notFound();
   const p = data as Product & { categories: { name: string; slug: string } | null };
   const { data: shop } = await supabase.from('public_shops').select('min_order').eq('id', p.seller_id).maybeSingle();
   const off = discountPct(p.mrp, p.price);
-  const wholesale = profile?.wholesale === 'approved' && p.wholesale_price;
+  // Only fetched for active bulk buyers; everyone else never receives a bulk price.
+  const bulk = await bulkPricesFor([p.id]);
+  const bulkPrice = bulk?.get(p.id) ?? null;
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -38,15 +43,25 @@ export default async function ProductPage({ params }: { params: { id: string } }
             Sold by <Link href={`/products?shop=${p.shop_id}`}>Shop {p.shop_id}</Link> · Licence verified
           </p>
         </div>
-        <p className="flex items-baseline gap-3">
-          <span className="text-3xl font-semibold text-maroon">{inr(p.price)}</span>
-          {p.mrp > p.price && <span className="text-[#8A7F72] line-through">MRP {inr(p.mrp)}</span>}
-        </p>
-        {wholesale ? (
-          <p className="rounded-xl bg-[#E8EEF8] px-3 py-2 text-sm text-[#1E3A6B]">
-            Wholesale: {inr(p.wholesale_price)} each for {p.wholesale_min_qty} or more (applied when you check out as wholesale).
-          </p>
-        ) : null}
+        {bulk && bulkPrice ? (
+          <div className="flex flex-col gap-1">
+            <span className="w-fit rounded-full bg-[#E8EEF8] px-3 py-1 text-sm font-semibold text-[#1E3A6B]">
+              {t('price.bulk')} {inr(bulkPrice)}
+            </span>
+            <p className="flex items-baseline gap-2 text-sm text-muted">
+              {t('price.normal')} <span className="line-through">{inr(p.price)}</span>
+              {p.mrp > p.price && <span className="text-[#8A7F72] line-through">MRP {inr(p.mrp)}</span>}
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="flex items-baseline gap-3">
+              <span className="text-3xl font-semibold text-maroon">{inr(p.price)}</span>
+              {p.mrp > p.price && <span className="text-[#8A7F72] line-through">MRP {inr(p.mrp)}</span>}
+            </p>
+            {bulk && <p className="rounded-xl bg-[#EFEBE4] px-3 py-2 text-sm text-[#4A4238]">{t('price.noBulk')}</p>}
+          </>
+        )}
         {p.pack_info && (
           <div className="rounded-2xl border border-line bg-white p-4 text-sm">
             <p className="mb-1 font-medium">What's inside</p>

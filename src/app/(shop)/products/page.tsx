@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import type { Category, Product } from '@/lib/types';
 import { ProductCard } from '@/components/ProductCard';
 import { Empty } from '@/components/ui';
+import { bulkPricesFor } from '@/lib/pricing';
+import { getT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Shop crackers' };
@@ -33,6 +35,8 @@ export default async function ProductsPage({
     else query = query.ilike('name', `%${q.replace(/[%_]/g, '')}%`);
   }
   const { data: products } = await query.order(sort.col, { ascending: sort.asc }).limit(120);
+  const bulk = await bulkPricesFor((products ?? []).map((p) => p.id as string));
+  const noBulk = getT()('price.noBulkShort');
 
   const link = (patch: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
@@ -71,7 +75,7 @@ export default async function ProductsPage({
       {products && products.length ? (
         <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {(products as Product[]).map((p) => (
-            <ProductCard key={p.id} p={p} />
+            <ProductCard key={p.id} p={p} bulkPrice={bulk ? bulk.get(p.id) ?? null : undefined} labels={{ noBulk }} />
           ))}
         </div>
       ) : (

@@ -4,6 +4,7 @@ import { EstimateCount } from './EstimateCount';
 import { LogoMark, Wordmark } from './Logo';
 import { HeaderShell, MobileTabs, NavLink } from './NavClient';
 import { Icon } from './ui';
+import { LangToggle } from './Lang';
 
 export { MobileTabs };
 
@@ -82,6 +83,7 @@ export async function Header() {
             ) : (
               <NavLink href="/login">Sign in</NavLink>
             )}
+            <LangToggle />
             <Link href="/estimate" aria-label="Estimate" className="btn-primary min-h-[40px] rounded-full px-3 sm:px-4">
               <Icon name="file" size={17} />
               <span className="hidden sm:inline">Estimate</span>
@@ -112,8 +114,8 @@ export function Footer() {
           <Link href="/sell" className="text-[#C9D2E3] hover:text-white">
             Sell on crackers.org.in
           </Link>
-          <Link href="/account" className="text-[#C9D2E3] hover:text-white">
-            Wholesale accounts
+          <Link href="/bulk/apply" className="text-[#C9D2E3] hover:text-white">
+            Bulk buyers (shop owners)
           </Link>
           <Link href="/safety" className="text-[#C9D2E3] hover:text-white">
             Safety guide

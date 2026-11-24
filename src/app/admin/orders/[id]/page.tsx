@@ -21,7 +21,7 @@ export default async function AdminOrder({ params }: { params: { id: string } })
     <div className="flex max-w-4xl flex-col gap-4">
       <PageTitle
         title={o.order_no}
-        sub={`${dateTime(o.created_at)} · ${inr(o.total)}${o.is_wholesale ? ' · wholesale' : ''}`}
+        sub={`${dateTime(o.created_at)} · ${inr(o.total)}${o.order_type === 'bulk' ? ` · BULK · bank transfer · GSTIN ${o.buyer_gstin ?? '—'} (${o.buyer_shop_name ?? ''})` : ''}`}
         action={<Badge tone={ORDER_STATUS[o.status].tone}>{ORDER_STATUS[o.status].label}</Badge>}
       />
       <Card className="grid gap-1 text-sm sm:grid-cols-2">

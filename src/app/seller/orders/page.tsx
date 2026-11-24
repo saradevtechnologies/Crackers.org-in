@@ -46,8 +46,17 @@ export default async function SellerOrders({ searchParams }: { searchParams: { t
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold">
+                    {s.order_type === 'bulk' && (
+                      <span className="mr-1.5 rounded bg-[#E8EEF8] px-1.5 py-0.5 align-middle text-[11px] font-semibold text-[#1E3A6B]">BULK</span>
+                    )}
                     {s.ship_name} · {s.ship_city} {s.ship_pincode}
                   </p>
+                  {s.order_type === 'bulk' && (
+                    <p className="text-xs">
+                      {s.buyer_shop_name} · GSTIN <span className="font-mono font-medium">{s.buyer_gstin}</span>{' '}
+                      <span className="text-muted">(for your GST invoice)</span>
+                    </p>
+                  )}
                   <p className="text-xs text-muted">
                     Phone {s.ship_phone_masked} · {dateTime(s.created_at)}
                   </p>

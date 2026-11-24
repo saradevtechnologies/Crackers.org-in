@@ -1,6 +1,9 @@
 export type Role = 'customer' | 'seller' | 'admin';
 export type SellerStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
-export type WholesaleStatus = 'none' | 'pending' | 'approved' | 'rejected';
+export type AccountType = 'customer' | 'bulk';
+export type BulkStatus = 'pending' | 'approved' | 'rejected' | 'suspended' | 'renewal_pending';
+export type OrderType = 'retail' | 'bulk';
+export type PaymentMethod = 'upi' | 'bank_transfer';
 export type OrderStatus =
   | 'payment_pending'
   | 'payment_submitted'
@@ -15,9 +18,7 @@ export interface Profile {
   role: Role;
   full_name: string | null;
   phone: string | null;
-  wholesale: WholesaleStatus;
-  wholesale_gstin: string | null;
-  wholesale_shop_name: string | null;
+  account_type: AccountType;
 }
 
 export interface Seller {
@@ -57,8 +58,6 @@ export interface Product {
   pack_info: string | null;
   mrp: number;
   price: number;
-  wholesale_price: number | null;
-  wholesale_min_qty: number;
   is_green: boolean;
   image_url: string | null;
   in_stock: boolean;
@@ -75,7 +74,10 @@ export interface Order {
   ship_city: string;
   ship_state: string;
   ship_pincode: string;
-  is_wholesale: boolean;
+  order_type: OrderType;
+  payment_method: PaymentMethod;
+  buyer_gstin: string | null;
+  buyer_shop_name: string | null;
   total: number;
   status: OrderStatus;
   utr: string | null;
@@ -96,6 +98,9 @@ export interface SubOrder {
   ship_city: string;
   ship_pincode: string;
   ship_phone_masked: string;
+  order_type: OrderType;
+  buyer_gstin: string | null;
+  buyer_shop_name: string | null;
   transport_name: string | null;
   lr_number: string | null;
   lr_photo_url: string | null;
@@ -111,4 +116,27 @@ export interface OrderItem {
   name: string;
   price: number;
   qty: number;
+}
+
+export interface BulkApplication {
+  id: string;
+  application_no: string;
+  shop_name: string;
+  owner_name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  gstin: string;
+  licence_number: string;
+  licence_expiry: string;
+  document_paths: string[];
+  status: BulkStatus;
+  admin_note: string | null;
+  user_id: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }

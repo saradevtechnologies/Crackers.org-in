@@ -8,7 +8,15 @@ import { ErrorNote, Field } from '@/components/ui';
 import { ProductImage } from '@/components/ProductCard';
 import { deleteProduct, saveProduct } from './actions';
 
-export function ProductForm({ product, categories }: { product: Product | null; categories: Category[] }) {
+export function ProductForm({
+  product,
+  categories,
+  bulkPrice = null,
+}: {
+  product: Product | null;
+  categories: Category[];
+  bulkPrice?: number | null;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(product?.image_url ?? null);
@@ -41,8 +49,7 @@ export function ProductForm({ product, categories }: { product: Product | null; 
         pack_info: String(f.get('pack_info') ?? '') || null,
         mrp: num('mrp') ?? 0,
         price: num('price') ?? 0,
-        wholesale_price: num('wholesale_price'),
-        wholesale_min_qty: num('wholesale_min_qty') ?? 1,
+        bulk_price: num('bulk_price'),
         is_green: f.get('is_green') === 'on',
         in_stock: f.get('in_stock') === 'on',
         active: f.get('active') === 'on',
@@ -82,16 +89,17 @@ export function ProductForm({ product, categories }: { product: Product | null; 
       <div />
       <Field label="MRP (₹)" name="mrp" type="number" min={1} step="0.01" defaultValue={product?.mrp} required />
       <Field label="Selling price (₹)" name="price" type="number" min={1} step="0.01" defaultValue={product?.price} required />
-      <Field
-        label="Wholesale price (₹)"
-        name="wholesale_price"
-        type="number"
-        min={1}
-        step="0.01"
-        defaultValue={product?.wholesale_price ?? ''}
-        hint="Only approved shop owners see this"
-      />
-      <Field label="Wholesale min. quantity" name="wholesale_min_qty" type="number" min={1} defaultValue={product?.wholesale_min_qty ?? 10} />
+      <div className="sm:col-span-2">
+        <Field
+          label="Bulk price (₹)"
+          name="bulk_price"
+          type="number"
+          min={1}
+          step="0.01"
+          defaultValue={bulkPrice ?? ''}
+          hint="Optional. Only verified shop owners see this. Bulk orders are ₹5 lakh and above."
+        />
+      </div>
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor="pack_info" className="text-sm font-medium">
           Pack contents

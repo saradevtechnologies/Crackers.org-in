@@ -78,3 +78,35 @@ function subscribe(cb: () => void) {
 export function useEstimate() {
   return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
+
+// ---------- Order type (bulk buyers choose bulk or regular) ----------
+const TYPE_KEY = 'crackers-order-type';
+const typeListeners = new Set<() => void>();
+
+function readType(): 'retail' | 'bulk' {
+  try {
+    return localStorage.getItem(TYPE_KEY) === 'bulk' ? 'bulk' : 'retail';
+  } catch {
+    return 'retail';
+  }
+}
+
+export function setOrderType(t: 'retail' | 'bulk') {
+  try {
+    localStorage.setItem(TYPE_KEY, t);
+  } catch {
+    // ignore
+  }
+  typeListeners.forEach((l) => l());
+}
+
+export function useOrderType() {
+  return useSyncExternalStore(
+    (cb) => {
+      typeListeners.add(cb);
+      return () => typeListeners.delete(cb);
+    },
+    readType,
+    () => 'retail' as const,
+  );
+}

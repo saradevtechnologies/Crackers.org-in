@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:sql": "node scripts/test-sql.mjs",
+    "test": "node --test src/lib/otp-core.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -20,6 +22,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.6.0",
     "@types/node": "^20.14.0",
     "@types/papaparse": "^5.3.14",
     "@types/qrcode": "^1.5.5",

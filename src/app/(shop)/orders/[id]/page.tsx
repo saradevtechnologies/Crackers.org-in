@@ -4,6 +4,9 @@ import { ORDER_STATUS, SUB_STATUS, dateTime, inr } from '@/lib/format';
 import type { Order, OrderItem, SubOrder, SubOrderStatus } from '@/lib/types';
 import { Badge, Card, ErrorNote } from '@/components/ui';
 import { PaymentPanel } from './PaymentPanel';
+import { BankTransferPanel } from './BankTransferPanel';
+import { createAdminClient } from '@/lib/supabase/admin';
+import type { BankDetails } from '@/lib/settings';
 import { OrderCelebration } from './OrderCelebration';
 import { CancelOrder } from './CancelOrder';
 
@@ -40,7 +43,10 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
 
       {o.status === 'rejected' && <ErrorNote msg={`We could not verify your payment. ${o.admin_note ?? ''} Contact support for help.`} />}
 
-      {paying && <PaymentPanel orderId={o.id} orderNo={o.order_no} amount={Number(o.total)} submittedUtr={o.utr} />}
+      {paying && o.payment_method === 'upi' && <PaymentPanel orderId={o.id} orderNo={o.order_no} amount={Number(o.total)} submittedUtr={o.utr} />}
+      {paying && o.payment_method === 'bank_transfer' && (
+        <BankTransferPanel orderId={o.id} orderNo={o.order_no} amount={Number(o.total)} submittedRef={o.utr} bank={await bankDetails()} />
+      )}
       {o.status === 'payment_pending' && <CancelOrder orderId={o.id} />}
 
       {(subs as (SubOrder & { order_items: OrderItem[] })[] | null)?.map((s) => {
@@ -110,4 +116,13 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       </Card>
     </div>
   );
+}
+
+/**
+ * Bank details for a bank-transfer order. The order above was read with the buyer's own session (RLS),
+ * so ownership is already proven; read with the service role so a buyer whose bulk access lapsed can still pay.
+ */
+async function bankDetails() {
+  const { data } = await createAdminClient().from('app_settings').select('value').eq('key', 'bulk_bank_details').maybeSingle();
+  return (data?.value as BankDetails | undefined) ?? null;
 }

@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 import { Noto_Sans_Tamil, Playfair_Display, Poppins } from 'next/font/google';
 import { SwRegister } from '@/components/SwRegister';
 import { RouteProgress } from '@/components/RouteProgress';
+import { LangProvider } from '@/components/Lang';
+import { getLang } from '@/lib/i18n';
 import './globals.css';
 
 const sans = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sans', display: 'swap' });
@@ -24,13 +26,14 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = getLang();
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} ${tamil.variable}`}>
+    <html lang={lang} className={`${sans.variable} ${display.variable} ${tamil.variable}`}>
       <body>
         <Suspense fallback={null}>
           <RouteProgress />
         </Suspense>
-        {children}
+        <LangProvider lang={lang}>{children}</LangProvider>
         <SwRegister />
       </body>
     </html>

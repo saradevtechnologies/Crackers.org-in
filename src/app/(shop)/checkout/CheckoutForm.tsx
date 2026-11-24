@@ -2,39 +2,50 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
-import { estimate, useEstimate } from '@/lib/estimate';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { estimate, useEstimate, useOrderType } from '@/lib/estimate';
+import { unitPrice, useLivePrices } from '@/lib/use-live-prices';
+import { useT } from '@/components/Lang';
+import { INDIAN_STATES } from '@/lib/validate';
 import { inr } from '@/lib/format';
 import { COPY } from '@/lib/copy';
 import { ErrorNote, Field } from '@/components/ui';
 import { placeOrder, type ShipInput } from './actions';
 
-const STATES = [
-  'Andhra Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh',
-  'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan',
-  'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Other',
-];
 
 export function CheckoutForm({
   defaults,
   blocked,
-  canWholesale,
+  bulk,
 }: {
   defaults: ShipInput;
   blocked: { kind: string; value: string }[];
-  canWholesale: boolean;
+  bulk: { gstin: string; shopName: string; ship: ShipInput } | null;
 }) {
+  const t = useT();
   const lines = useEstimate();
+  const live = useLivePrices(lines);
+  const chosen = useOrderType();
   const router = useRouter();
+  const isBulk = !!bulk && chosen === 'bulk';
   const [ship, setShip] = useState<ShipInput>(defaults);
-  const [wholesale, setWholesale] = useState(false);
+  const touched = useRef(false);
+  // The order type lives in localStorage, so it is only known after hydration: switch the prefill then.
+  useEffect(() => {
+    if (!touched.current) setShip(isBulk && bulk ? bulk.ship : defaults);
+  }, [isBulk]); // eslint-disable-line react-hooks/exhaustive-deps
   const [adult, setAdult] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const total = lines.reduce((s, l) => s + l.price * l.qty, 0);
+  const type = isBulk ? 'bulk' : 'retail';
+  const total = lines.reduce((s, l) => s + unitPrice(l, type, live.bulk) * l.qty, 0);
+  const belowBulkMin = isBulk && live.ready && total < live.bulkMin;
   const set = (k: keyof ShipInput) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-    setShip((s) => ({ ...s, [k]: e.target.value }));
+    {
+      touched.current = true;
+      setShip((s) => ({ ...s, [k]: e.target.value }));
+    };
 
   const areaBlocked = blocked.some(
     (b) =>
@@ -62,7 +73,7 @@ export function CheckoutForm({
       const res = await placeOrder(
         lines.map((l) => ({ product_id: l.productId, qty: l.qty })),
         ship,
-        wholesale,
+        type,
       );
       if (res.error || !res.orderId) return setError(res.error ?? 'Could not place the order.');
       estimate.clear();
@@ -72,7 +83,18 @@ export function CheckoutForm({
 
   return (
     <form onSubmit={submit} className="mx-auto flex max-w-2xl flex-col gap-5">
-      <h1 className="text-2xl font-semibold">Delivery details</h1>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-semibold">Delivery details</h1>
+        {isBulk && <span className="rounded-full bg-[#E8EEF8] px-2.5 py-0.5 text-xs font-semibold uppercase text-[#1E3A6B]">{t('checkout.bulkBadge')}</span>}
+      </div>
+      {isBulk && bulk && (
+        <p className="rounded-xl bg-cream px-3 py-2 text-sm">
+          {t('checkout.gstNote').split('{gstin}')[0]}
+          <span className="font-mono font-semibold">{bulk.gstin}</span>
+          {t('checkout.gstNote').split('{gstin}')[1]}
+        </p>
+      )}
+      {belowBulkMin && <ErrorNote msg={t('checkout.bulkBelowMin')} />}
       <div className="grid gap-4 rounded-2xl border border-line bg-white p-4 sm:grid-cols-2">
         <Field label="Full name" name="name" value={ship.name} onChange={set('name')} required autoComplete="name" />
         <Field
@@ -106,7 +128,7 @@ export function CheckoutForm({
             State
           </label>
           <select id="state" className="input" value={ship.state} onChange={set('state')}>
-            {STATES.map((s) => (
+            {INDIAN_STATES.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
@@ -114,13 +136,6 @@ export function CheckoutForm({
       </div>
 
       {areaBlocked && <ErrorNote msg="Delivery is not available in your area due to local regulations." />}
-
-      {canWholesale && (
-        <label className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 text-sm">
-          <input type="checkbox" className="h-5 w-5 accent-maroon" checked={wholesale} onChange={(e) => setWholesale(e.target.checked)} />
-          Use wholesale prices (applied to items that meet each product's minimum quantity)
-        </label>
-      )}
 
       <label className="flex items-start gap-3 text-sm text-[#4A4238]">
         <input type="checkbox" className="mt-0.5 h-5 w-5 accent-maroon" checked={adult} onChange={(e) => setAdult(e.target.checked)} />
@@ -131,10 +146,10 @@ export function CheckoutForm({
 
       <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4">
         <div>
-          <p className="text-xs text-muted">{wholesale ? 'Total before wholesale discount' : 'Total'}</p>
+          <p className="text-xs text-muted">{isBulk ? t('checkout.bulkBadge') : 'Total'}</p>
           <p className="text-xl font-semibold">{inr(total)}</p>
         </div>
-        <button className="btn-primary" disabled={pending || areaBlocked}>
+        <button className="btn-primary" disabled={pending || areaBlocked || belowBulkMin || !live.ready}>
           {pending ? 'Sending…' : COPY.checkoutCta}
         </button>
       </div>

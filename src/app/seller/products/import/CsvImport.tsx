@@ -35,8 +35,8 @@ export function CsvImport({ categories }: { categories: Category[] }) {
           category_id: bySlug.get(String(r.category ?? '').trim().toLowerCase()) ?? null,
           mrp: num(r.mrp) ?? 0,
           price: num(r.price) ?? 0,
-          wholesale_price: num(r.wholesale_price),
-          wholesale_min_qty: num(r.wholesale_min_qty) ?? 1,
+          // "wholesale_price" is still accepted from old price lists
+          bulk_price: num(r.bulk_price ?? r.wholesale_price),
           pack_info: r.pack_info?.trim() || null,
           description: r.description?.trim() || null,
           is_green: yes(r.is_green),
@@ -55,7 +55,7 @@ export function CsvImport({ categories }: { categories: Category[] }) {
     <div className="flex flex-col gap-4">
       <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-[#B9A57E] bg-white p-8 text-center text-sm">
         <span className="font-medium">Choose CSV file</span>
-        <span className="text-muted">Columns: name, category, mrp, price, wholesale_price, wholesale_min_qty, pack_info, description, is_green</span>
+        <span className="text-muted">Columns: name, category, mrp, price, bulk_price, pack_info, description, is_green</span>
         <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && parse(e.target.files[0])} />
       </label>
       <ErrorNote msg={error} />
@@ -70,7 +70,7 @@ export function CsvImport({ categories }: { categories: Category[] }) {
                   <th>Category</th>
                   <th>MRP</th>
                   <th>Price</th>
-                  <th>Wholesale</th>
+                  <th>Bulk price</th>
                   <th>Green</th>
                 </tr>
               </thead>
@@ -81,7 +81,7 @@ export function CsvImport({ categories }: { categories: Category[] }) {
                     <td>{categories.find((c) => c.id === r.category_id)?.name ?? <span className="text-muted">None</span>}</td>
                     <td>{inr(r.mrp)}</td>
                     <td className={r.price > r.mrp ? 'text-maroon' : ''}>{inr(r.price)}</td>
-                    <td>{r.wholesale_price ? `${inr(r.wholesale_price)} × ${r.wholesale_min_qty}+` : '—'}</td>
+                    <td>{r.bulk_price ? inr(r.bulk_price) : '—'}</td>
                     <td>{r.is_green ? 'Yes' : 'No'}</td>
                   </tr>
                 ))}

@@ -10,10 +10,13 @@ export default async function SellerProducts() {
   const { supabase, seller } = await requireSeller();
   const { data } = await supabase
     .from('products')
-    .select('*, categories(name)')
+    .select('*, categories(name), product_bulk_prices(bulk_price)')
     .eq('seller_id', seller.id)
     .order('created_at', { ascending: false });
-  const products = (data ?? []) as (Product & { categories: { name: string } | null })[];
+  const products = (data ?? []) as (Product & {
+    categories: { name: string } | null;
+    product_bulk_prices: { bulk_price: number } | null;
+  })[];
   return (
     <div>
       <PageTitle
@@ -38,7 +41,7 @@ export default async function SellerProducts() {
                 <th>Product</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Wholesale</th>
+                <th>Bulk</th>
                 <th>In stock</th>
                 <th>Listed</th>
                 <th></th>
@@ -60,7 +63,7 @@ export default async function SellerProducts() {
                   <td>
                     {inr(p.price)} <span className="text-xs text-muted line-through">{inr(p.mrp)}</span>
                   </td>
-                  <td>{p.wholesale_price ? `${inr(p.wholesale_price)} × ${p.wholesale_min_qty}+` : '—'}</td>
+                  <td>{p.product_bulk_prices ? `Bulk ${inr(p.product_bulk_prices.bulk_price)}` : '—'}</td>
                   <ProductToggles id={p.id} inStock={p.in_stock} active={p.active} />
                   <td>
                     <Link href={`/seller/products/${p.id}`} className="font-medium">

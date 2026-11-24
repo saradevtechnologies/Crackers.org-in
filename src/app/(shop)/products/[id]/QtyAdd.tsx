@@ -15,7 +15,7 @@ export function QtyAdd({ product }: { product: Product }) {
         <span className="w-8 text-center font-medium" aria-live="polite">
           {qty}
         </span>
-        <button type="button" aria-label="Increase quantity" className="h-12 w-11 text-xl" onClick={() => setQty((q) => Math.min(999, q + 1))}>
+        <button type="button" aria-label="Increase quantity" className="h-12 w-11 text-xl" onClick={() => setQty((q) => Math.min(9999, q + 1))}>
           +
         </button>
       </div>
